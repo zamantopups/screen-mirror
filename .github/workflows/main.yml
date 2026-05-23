@@ -1,23 +1,23 @@
-    1 name: Build APK
-    2 on:
-    3   push:
-    4     branches:
-    5       - main
-    6 jobs:
-    7   build:
-    8     runs-on: ubuntu-latest
-    9     steps:
-   10       - uses: actions/checkout@v3
-   11       - uses: actions/setup-java@v3
-   12         with:
-   13           distribution: 'zulu'
-   14           java-version: '17'
-   15       - uses: subosito/flutter-action@v2
-   16         with:
-   17           channel: 'stable'
-   18       - run: flutter pub get
-   19       - run: flutter build apk --release
-   20       - uses: actions/upload-artifact@v3
-   21         with:
-   22           name: app-release
-   23           path: build/app/outputs/flutter-apk/app-release.apk
+     name: Build APK
+     on:
+       push:
+         branches:
+           - main
+     jobs:
+       build:
+         runs-on: ubuntu-latest
+         steps:
+          - uses: actions/checkout@v3
+          - uses: actions/setup-java@v3
+            with:
+              distribution: 'zulu'
+              java-version: '17'
+          - uses: subosito/flutter-action@v2
+            with:
+              channel: 'stable'
+          - run: flutter pub get
+          - run: flutter build apk --release
+          - uses: actions/upload-artifact@v3
+            with:
+              name: app-release
+              path: build/app/outputs/flutter-apk/app-release.apk
