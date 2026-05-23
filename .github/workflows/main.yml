@@ -1,8 +1,6 @@
  name: Build APK
- on:
-   push:
-     branches: [ main ]
- jobs:
+ on: [push]
+  jobs:
     build:
       runs-on: ubuntu-latest
       steps:
@@ -20,7 +18,8 @@
             flutter create --platforms android my_app
             cp lib/main.dart my_app/lib/main.dart
             cd my_app
-            flutter pub add flutter_webrtc permission_handler
+            # Zaroori plugins add karna
+            flutter pub add flutter_webrtc permission_handler socket_io_client
             sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/' android/app/build.gradle
             cd android
             chmod +x gradlew
