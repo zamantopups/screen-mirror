@@ -1,19 +1,19 @@
-    1 name: screen_mirror_app
-    2 description: A new Flutter project for screen mirroring.
-    3 version: 1.0.0+1
-    4
-    5 environment:
-    6   sdk: '>=3.0.0 <4.0.0'
-    7
-    8 dependencies:
-    9   flutter:
-   10     sdk: flutter
-   11   flutter_webrtc: ^0.12.1
-   12   permission_handler: ^11.3.1
-   13
-   14 dev_dependencies:
-   15   flutter_test:
-   16     sdk: flutter
-   17
-   18 flutter:
-   19   uses-material-design: true
+ name: screen_mirror_app
+ description: A new Flutter project for screen mirroring.
+ version: 1.0.0+1
+
+ environment:
+   sdk: '>=3.0.0 <4.0.0'
+
+ dependencies:
+   flutter:
+     sdk: flutter
+   flutter_webrtc: ^0.12.1
+   permission_handler: ^11.3.1
+
+ dev_dependencies:
+   flutter_test:
+     sdk: flutter
+
+ flutter:
+   uses-material-design: true
