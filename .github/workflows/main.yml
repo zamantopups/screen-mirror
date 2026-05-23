@@ -1,40 +1,31 @@
  name: Build APK
- on: [push]
+ on:
+   push:
+     branches: [ main ]
  jobs:
-   build:
-     runs-on: ubuntu-latest
-     steps:
-       - uses: actions/checkout@v4
-       - uses: actions/setup-java@v4
-         with:
-           distribution: 'zulu'
-           java-version: '17'
-       - uses: subosito/flutter-action@v2
-         with:
-           flutter-version: '3.19.0'
-           channel: 'stable'
-
-       - name: Create and Build
-         run: |
-           flutter create --platforms android my_app
-           cp lib/main.dart my_app/lib/main.dart
-           cd my_app
-           flutter pub add flutter_webrtc permission_handler
-
-           # Android permissions aur version theek karna
-           sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/' android/app/build.gradle
-
-           # LINT KO BILKUL KHATAM KARNA (Aggressive Skip)
-           echo "tasks.whenTaskAdded { task -> if (task.name.contains('lint') || task.name.contains('Lint')) {
-      task.enabled = false } }" >> android/app/build.gradle
-
-           # DIRECT GRADLEW BUILD (No flutter build command)
-           cd android
-           chmod +x gradlew
-           ./gradlew assembleRelease -x lint -x lintVitalRelease -x test --no-daemon
-
-       - name: Upload APK
-   36         uses: actions/upload-artifact@v4
-   37         with:
-   38           name: app-release
-   39           path: my_app/build/app/outputs/flutter-apk/app-release.apk
+    build:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-java@v4
+          with:
+            distribution: 'zulu'
+            java-version: '17'
+        - uses: subosito/flutter-action@v2
+          with:
+            flutter-version: '3.19.0'
+            channel: 'stable'
+        - name: Create and Build
+          run: |
+            flutter create --platforms android my_app
+            cp lib/main.dart my_app/lib/main.dart
+            cd my_app
+            flutter pub add flutter_webrtc permission_handler
+            sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/' android/app/build.gradle
+            cd android
+            chmod +x gradlew
+            ./gradlew assembleRelease -x lint -x lintVitalRelease --no-daemon
+        - uses: actions/upload-artifact@v4
+          with:
+            name: app-release
+            path: my_app/build/app/outputs/flutter-apk/app-release.apk
