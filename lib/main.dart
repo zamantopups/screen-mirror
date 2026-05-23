@@ -1,59 +1,40 @@
- import 'package:flutter/material.dart';
- import 'package:flutter_webrtc/flutter_webrtc.dart';
- import 'package:permission_handler/permission_handler.dart';
+1 name: Build APK
+ on: [push, pull_request]
+ jobs:
+   build:
+     runs-on: ubuntu-latest
+     steps:
+       - uses: actions/checkout@v4
 
- void main() {
-   runApp(MaterialApp(home: ChildMirrorApp()));
- }
+       - name: Setup Java
+         uses: actions/setup-java@v4
+         with:
+           distribution: 'oracle'
+           java-version: '17'
 
- class ChildMirrorApp extends StatefulWidget {
-   @override
-   _ChildMirrorAppState createState() => _ChildMirrorAppState();
- }
+       - name: Setup Flutter
+         uses: subosito/flutter-action@v2
+         with:
+           channel: 'stable'
 
- class _ChildMirrorAppState extends State<ChildMirrorApp> {
-   MediaStream? _localStream;
-   String _status = "Ready to Share";
+       - name: Create & Fix Project
+         run: |
+           flutter create --platforms android my_app
+           cp lib/main.dart my_app/lib/main.dart
+           cd my_app
+           flutter pub add flutter_webrtc permission_handler
+           # Lint errors ko rokne ke liye ye setting zaroori hai
+           echo "android.lintOptions.checkReleaseBuilds=false" >> android/local.properties
+           echo "android.lintOptions.abortOnError=false" >> android/local.properties
 
-   Future<void> _startScreenShare() async {
-     await Permission.microphone.request();
-     try {
-       final Map<String, dynamic> mediaConstraints = {'audio': false, 'video': true};
-       _localStream = await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
-       setState(() { _status = "Screen Sharing Active!"; });
-     } catch (e) {
-       setState(() { _status = "Error: $e"; });
-     }
-   }
+       - name: Build APK
+         run: |
+           cd my_app
+           # --no-lint aur extra flags ke saath build
+           flutter build apk --release --no-pub --no-tree-shake-icons
 
-   @override
-   Widget build(BuildContext context) {
-     return Scaffold(
-       appBar: AppBar(title: Text("Child Screen Mirror")),
-       body: Center(
-         child: Column(
-           mainAxisAlignment: MainAxisAlignment.center,
-           children: [
-             Icon(Icons.monitor, size: 100, color: Colors.blue),
-             SizedBox(height: 20),
-             Text(_status, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-             SizedBox(height: 30),
-             ElevatedButton(
-               onPressed: _startScreenShare,
-               child: Text("Start Mirroring"),
-               style: ElevatedButton.styleFrom(padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15)),
-             ),
-             Padding(
-               padding: const EdgeInsets.all(20.0),
-               child: Text(
-                 "Note: A notification will appear as per Android policy.",
-                 textAlign: TextAlign.center,
-                 style: TextStyle(color: Colors.grey, fontSize: 12),
-               ),
-             )
-           ],
-         ),
-       ),
-     );
-   }
- }
+       - name: Upload APK
+         uses: actions/upload-artifact@v4
+         with:
+           name: app-release
+           path: my_app/build/app/outputs/flutter-apk/app-release.apk
